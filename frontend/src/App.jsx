@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { BookOpen, Code, Cpu, Loader2, CheckCircle, ExternalLink, Clock, Layers } from 'lucide-react';
+import { BookOpen, Code, Cpu, Loader2, CheckCircle, ExternalLink, Clock, Layers, Terminal, ClipboardCheck, Clipboard, Award, Sparkles } from 'lucide-react';
 
 function App() {
     const [goal, setGoal] = useState('');
     const [loading, setLoading] = useState(false);
     const [plan, setPlan] = useState(null);
     const [error, setError] = useState('');
+    const [copied, setCopied] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,6 +33,13 @@ function App() {
         }
     };
 
+    const copyToClipboard = () => {
+        const text = JSON.stringify(plan, null, 2);
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500/30">
             <div className="max-w-4xl mx-auto px-6 py-12">
@@ -45,7 +53,7 @@ function App() {
                         Skill Forge AI
                     </h1>
                     <p className="text-slate-400 text-lg max-w-xl mx-auto">
-                        Your personal AI curriculum architect. Enter a skill, and we'll engineer the perfect learning path using Pydantic AI.
+                        Your personal AI curriculum architect. Powered by Pydantic AI & DuckDuckGo Search.
                     </p>
                 </header>
 
@@ -70,7 +78,6 @@ function App() {
                             </button>
                         </div>
                     </form>
-                    {/* Glow Effect */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                 </div>
 
@@ -83,77 +90,123 @@ function App() {
 
                 {/* Results Section */}
                 {plan && (
-                    <div className="space-y-8 animate-fade-in">
+                    <div className="space-y-8 animate-fade-in pb-20">
                         {/* Overview Card */}
-                        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-                            <div className="flex items-start justify-between mb-6">
-                                <div>
-                                    <h2 className="text-2xl font-bold text-white mb-2">{plan.goal}</h2>
-                                    <div className="flex gap-2">
-                                        <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-medium rounded-full border border-indigo-500/20">
-                                            {plan.difficulty_level}
+                        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4">
+                                <button
+                                    onClick={copyToClipboard}
+                                    className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white"
+                                    title="Copy Data"
+                                >
+                                    {copied ? <ClipboardCheck className="w-5 h-5 text-emerald-400" /> : <Clipboard className="w-5 h-5" />}
+                                </button>
+                            </div>
+
+                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="w-5 h-5 text-indigo-400" />
+                                        <h2 className="text-3xl font-bold text-white">{plan.goal}</h2>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-semibold rounded-full border border-indigo-500/20">
+                                            {plan.difficulty_level.toUpperCase()}
                                         </span>
-                                        <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20">
-                                            AI Generated
+                                        <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-semibold rounded-full border border-emerald-500/20 flex items-center gap-1">
+                                            <Clock className="w-3 h-3" /> {plan.total_estimated_weeks} WEEKS
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            <p className="text-slate-300 leading-relaxed border-l-2 border-indigo-500 pl-4">
-                                {plan.summary_motivation}
-                            </p>
+
+                            <div className="grid md:grid-cols-3 gap-8">
+                                <div className="md:col-span-2">
+                                    <h4 className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2">Motivation</h4>
+                                    <p className="text-slate-300 leading-relaxed italic border-l-2 border-indigo-500 pl-4 bg-indigo-500/5 py-2 rounded-r-lg">
+                                        "{plan.summary_motivation}"
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <Award className="w-4 h-4" /> Prerequisites
+                                    </h4>
+                                    <ul className="space-y-1">
+                                        {plan.prerequisites.map((item, i) => (
+                                            <li key={i} className="text-sm text-slate-400 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Modules Timeline */}
-                        <div className="space-y-6">
+                        {/* Modules timeline */}
+                        <div className="space-y-12 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-800 before:to-transparent">
                             {plan.modules.map((module, index) => (
-                                <div key={index} className="group relative bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-indigo-500/30 transition-colors">
-                                    <div className="absolute -left-3 top-8 w-6 h-6 bg-slate-950 border-4 border-indigo-900 rounded-full flex items-center justify-center">
-                                        <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                                <div key={index} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                                    {/* Icon */}
+                                    <div className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 bg-slate-900 text-slate-300 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                        <span className="text-xs font-bold">{index + 1}</span>
                                     </div>
 
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                                        <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                                            <span className="text-indigo-500 font-mono">0{index + 1}.</span> {module.title}
-                                        </h3>
-                                        <div className="flex items-center gap-2 text-slate-500 text-sm">
-                                            <Clock className="w-4 h-4" />
-                                            <span>{module.estimated_hours} Hours</span>
+                                    {/* Content */}
+                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-slate-900/50 border border-slate-800 p-6 rounded-2xl hover:border-indigo-500/40 transition-all hover:bg-slate-900 shadow-xl group-hover:scale-[1.02]">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="font-bold text-white text-lg">{module.title}</h3>
+                                            <time className="font-mono text-xs text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">
+                                                {module.estimated_hours}h
+                                            </time>
                                         </div>
-                                    </div>
+                                        <p className="text-slate-400 text-sm mb-4">{module.description}</p>
 
-                                    <p className="text-slate-400 mb-6">{module.description}</p>
-
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/50">
-                                            <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                                                <Layers className="w-4 h-4 text-indigo-400" /> Key Topics
-                                            </h4>
-                                            <ul className="space-y-2">
+                                        <div className="space-y-4">
+                                            {/* Key Topics */}
+                                            <div className="flex flex-wrap gap-2">
                                                 {module.key_topics.map((topic, i) => (
-                                                    <li key={i} className="flex items-start gap-2 text-sm text-slate-400">
-                                                        <CheckCircle className="w-4 h-4 text-emerald-500/50 mt-0.5 shrink-0" />
+                                                    <span key={i} className="text-[10px] px-2 py-0.5 bg-slate-800 text-slate-300 rounded-md border border-slate-700">
                                                         {topic}
-                                                    </li>
+                                                    </span>
                                                 ))}
-                                            </ul>
-                                        </div>
+                                            </div>
 
-                                        <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/50">
-                                            <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                                                <BookOpen className="w-4 h-4 text-indigo-400" /> Resources
-                                            </h4>
-                                            <ul className="space-y-2">
-                                                {module.resources.map((res, i) => (
-                                                    <li key={i} className="flex items-center justify-between text-sm group/link">
-                                                        <span className="text-slate-400">{res.title}</span>
-                                                        <a href={`https://www.google.com/search?q=${res.url}`} target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 opacity-0 group-hover/link:opacity-100 transition-opacity">
-                                                            <span className="text-xs">{res.type}</span>
-                                                            <ExternalLink className="w-3 h-3" />
+                                            {/* Project Idea */}
+                                            {module.project_idea && (
+                                                <div className="bg-emerald-500/5 border border-emerald-500/20 p-3 rounded-xl">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                                                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-tighter">Mini Project</span>
+                                                    </div>
+                                                    <p className="text-xs text-slate-300 leading-snug">{module.project_idea}</p>
+                                                </div>
+                                            )}
+
+                                            {/* Resources */}
+                                            <div className="pt-2 border-t border-slate-800">
+                                                <div className="flex items-center gap-2 mb-2 text-slate-500">
+                                                    <BookOpen className="w-3.5 h-3.5" />
+                                                    <span className="text-[10px] font-bold uppercase">Resources</span>
+                                                </div>
+                                                <div className="flex flex-col gap-2">
+                                                    {module.resources.map((res, i) => (
+                                                        <a
+                                                            key={i}
+                                                            href={res.url.startsWith('http') ? res.url : `https://www.google.com/search?q=${res.url}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="flex items-center justify-between group/link bg-slate-950/50 p-2 rounded-lg hover:bg-indigo-500/10 transition-colors"
+                                                        >
+                                                            <div className="flex flex-col">
+                                                                <span className="text-[11px] text-slate-200 font-medium group-hover/link:text-indigo-300">{res.title}</span>
+                                                                <span className="text-[9px] text-slate-500 uppercase">{res.type}</span>
+                                                            </div>
+                                                            <ExternalLink className="w-3 h-3 text-slate-600 group-hover/link:text-indigo-400" />
                                                         </a>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
