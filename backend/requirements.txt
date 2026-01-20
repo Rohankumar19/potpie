@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pydantic-ai
+python-dotenv
+devtools
+pydantic
+logfire
