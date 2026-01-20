@@ -1,9 +1,13 @@
+import logfire
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from agent import generate_learning_path
 
 app = FastAPI(title="Skill Forge API")
+
+# Instrument FastAPI with Logfire
+logfire.instrument_fastapi(app)
 
 # Enable CORS for frontend communication
 app.add_middleware(
